@@ -1,0 +1,288 @@
+<div class="row p-3" *ngIf="currentProjectId != null">
+    <div class="col pb-3">
+        <h1>Project Static Configs</h1>
+        <p>This is where the you set 1-time static configurations for your project. Most of these information will be
+            releavant to your XCode configurations.</p>
+        <mat-card-content class="px-2 py-4">
+            <form [formGroup]="staticConfigFormIos" (ngSubmit)="submitStaticConfigForm(staticConfigFormIos.value)"
+                *ngIf="currentProjectPlatform == 'ios'" ngNativeValidate>
+                <div class="form-group">
+                    <label for="xcodeProjName">XCode Project Name</label>
+                    <input type="text" class="form-control" id="xcodeProjName" formControlName="xcodeproject"
+                        placeholder="e.g. abc_app_ios" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="teamCert">Signing Certificate Name</label>
+                    <input type="text" class="form-control" id="teamCert" formControlName="team_cert"
+                        aria-describedby="teamCertNote" placeholder="e.g. Apple Distribution: ABC Company Sdn. Bhd."
+                        required>
+                    <small id="teamCertNote" class="form-text text-muted">The name of the Apple signing certificate for
+                        this project.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="signingMethod">App Signing Method</label>
+                    <select class="custom-select cursor-pointer" id="signingMethod" aria-describedby="signingMethodNote"
+                        formControlName="signing_method" aria-label="App signing Method" required>
+                        <option value="automatic" selected>Automatic (recommended)</option>
+                        <option value="manual">Manual</option>
+                    </select>
+                    <small id="signingMethodNote" class="form-text text-muted">The preferred signing method for your
+                        app.
+                        Automatic signing is recommended for security reasons.
+                    </small>
+                </div>
+
+                <!-- upload method: automatic -->
+                <form [formGroup]="appSigningFormIos" (ngSubmit)="uploadAppSigningAutoFiles(appSigningFormIos.value)"
+                    *ngIf="currentProjectPlatform == 'ios'" ngNativeValidate>
+                    <mat-card *ngIf="staticConfigFormIos.value.signing_method == 'automatic'" class="mb-3">
+                        <div class="form-group">
+                            <label for="provisioningCertFile">Apple Provisioning Profile Certificate</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input #inputFile type="file" class="custom-file-input cursor-pointer"
+                                        id="provisioningCertFile" aria-describedby="provisioningCertFileNote"
+                                        (change)="provisioningCertOnChange($event)"
+                                        [required]="provisioningCertFileName == undefined">
+                                    <label class="custom-file-label"
+                                        for="provisioningCertFile">{{provisioningCertFileName? provisioningCertFileName: 'Choose file'}}</label>
+                                </div>
+                            </div>
+                            <small id="provisioningCertFileNote" class="form-text text-muted mb-3">Upload your Apple
+                                Provisioning Profile Certificate for this project. <a
+                                    href="https://developer.apple.com/support/certificates/" target="_blank">Learn
+                                    more</a>
+                            </small>
+
+                            <label for="privateKeyFile">Certificate Private Key File</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input #inputFile type="file" class="custom-file-input cursor-pointer"
+                                        id="privateKeyFile" aria-describedby="privateKeyFileNote"
+                                        (change)="privateKeyOnChange($event)"
+                                        [required]="privateKeyFileName == undefined">
+                                    <label class="custom-file-label"
+                                        for="privateKeyFile">{{privateKeyFileName? privateKeyFileName: 'Choose file'}}</label>
+                                </div>
+                            </div>
+                            <small id="privateKeyFileNote" class="form-text text-muted mb-3">Upload the private key file
+                                associated to the certificate chosen above. <a
+                                    href="https://developer.apple.com/support/certificates/" target="_blank">Learn
+                                    more</a>
+                            </small>
+
+                            <div class="form-group">
+                                <label for="certPword">Certificate Password</label>
+                                <input type="{{shouldShowCertPword? 'text':'password'}}" class="form-control"
+                                    formControlName="certificate_password" id="certPword"
+                                    (change)="certPwordOnChange()">
+                                <small class="form-text text-muted">Optional: Input the password used when generating
+                                    your p12 private key file, if applicable.</small>
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="showCertPword"
+                                    (change)=toggleShowCertPword()>
+                                <label class="form-check-label" for="showCertPword">Show password</label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-baseline mb-2">
+                            <button type="submit" class="btn btn-success ml-auto border"
+                                [disabled]="!shouldEnableUploadBtn">Upload</button>
+
+                            <!-- cartfile status -->
+                            <!-- <label class="ml-auto d-flex align-items-center text-secondary"
+                                *ngIf="cartFileStatus == 'building'">
+                                <mat-spinner class="mr-1" diameter="18"></mat-spinner>
+                                Compiling...
+                            </label>
+
+                            <label class="ml-auto d-flex align-items-center text-success"
+                                *ngIf="cartFileStatus == 'success'">
+                                <mat-icon class="mr-1">check_circle_outline</mat-icon>
+                                Done!
+                            </label>
+
+                            <label class="ml-auto d-flex align-items-center text-danger"
+                                *ngIf="cartFileStatus == 'failure'">
+                                <mat-icon class="mr-1">cancel</mat-icon>
+                                Failed!
+                            </label> -->
+                        </div>
+                    </mat-card>
+                </form>
+
+                <div class="form-group">
+                    <label for="uploadMethod">App Upload Method</label>
+                    <select class="custom-select cursor-pointer" id="uploadMethod" aria-describedby="uploadMethodNote"
+                        formControlName="upload_method" aria-label="App upload Method" required>
+                        <option value="key" selected>App Store Connect API (recommended)</option>
+                        <option value="credential">App Store Login Credentials</option>
+                    </select>
+                    <small id="uploadMethodNote" class="form-text text-muted">Whether to upload the app to AppStore with
+                        your AppStore login credentials or with
+                        <a href="https://developer.apple.com/documentation/appstoreconnectapi" target="_blank">App
+                            Store Connect API</a>.
+                    </small>
+                    <small *ngIf="staticConfigFormIos.value.upload_method == 'credential'">
+                        <strong class="text-danger">*NOTE: If you have Two-factor Authentication (2FA) enabled on your App Store account,
+                            upload method will fail using App Store login credentials.
+                        </strong>
+                    </small>
+                </div>
+
+                <!--  upload method: key-->
+                <mat-card *ngIf="staticConfigFormIos.value.upload_method == 'key'" class="mb-3">
+                    <div class="form-group">
+                        <h3>App Store Connect API</h3>
+
+                        <label for="appstoreApiIssuer">Issuer ID</label>
+                        <input type="text" class="form-control" id="appstoreApiIssuer"
+                            formControlName="appstore_api_issuer" aria-describedby="appstoreApiIssuerNote" required>
+                        <small id="appstoreApiIssuerNote" class="form-text text-muted">The Issuer ID for your App Store
+                            Connect API. Obtain this from your
+                            <a href="https://appstoreconnect.apple.com/access/api" target="_blank">
+                                App Store Connect Developer Console.</a>
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appstoreKey">App Store Key</label>
+                        <textarea type="text" class="form-control" id="appstoreKey" formControlName="appstore_key"
+                            aria-describedby="appstoreKeyNote" rows="4" required></textarea>
+                        <small id="appstoreKeyNote" class="form-text text-muted">The App Store Connect key. This can be
+                            generated and downloaded only once from your
+                            <a href="https://appstoreconnect.apple.com/access/api" target="_blank">
+                                App Store Connect Developer Console.</a></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appstoreApiKey">Api Key ID</label>
+                        <input type="text" class="form-control" id="appstoreApiKey" formControlName="appstore_api_key"
+                            aria-describedby="appstoreApiKeyNote" required>
+                        <small id="appstoreApiKeyNote" class="form-text text-muted">The key ID for the generated App
+                            Store Connect key.</small>
+                    </div>
+                </mat-card>
+
+                <!-- upload method: creds -->
+                <mat-card *ngIf="staticConfigFormIos.value.upload_method == 'credential'" class="mb-3">
+                    <h3>App Store Login Credentials</h3>
+                    <div class="form-group">
+                        <label for="appstoreUsername">App Store Username</label>
+                        <input type="text" class="form-control" id="appstoreUsername"
+                            formControlName="appstore_username" aria-describedby="appstoreUsernameNote" required>
+                        <small id="appstoreUsernameNote" class="form-text text-muted">The App Store username for this
+                            project.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appstorePword">App Store Password</label>
+                        <input type="password" class="form-control" id="appstorePword"
+                            formControlName="appstore_password" aria-describedby="appstorePwordNote" required>
+                        <small id="appstorePwordNote" class="form-text text-muted">The App Store password for this
+                            project.</small>
+                        <!-- <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="regShowPword"
+                                (change)=toggleShowPword()>
+                            <label class="form-check-label" for="regShowPword">Show password</label>
+                        </div> -->
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appstoreBundleId">App Store Bundle ID(s)</label>
+                        <textarea type="text" class="form-control" id="appstoreBundleId" formControlName="bundle_ids"
+                            aria-describedby="appstoreBundleIdNote" rows="3"
+                            placeholder="e.g. com.company_abc.test_app_dev, com.company_abc.test_app_stg, com.company_abc.test_app_prod"
+                            required></textarea>
+                        <small id="appstoreBundleIdNote" class="form-text text-muted">The unique bundle identifier for
+                            this project. Separate multiple bundle IDs with a comma.</small>
+                    </div>
+                </mat-card>
+
+                <div class="form-group">
+                    <label for="bitcodeOptions">Bitcode Options</label>
+                    <mat-slide-toggle class="ml-2" id="bitcodeOptions" aria-describedby="bitcodeOptionsNote"
+                        [checked]="staticConfigFormIos.value.bitcode_option" formControlName="bitcode_option">
+                    </mat-slide-toggle>
+                    <small id="bitcodeOptionsNote" class="form-text text-muted">Select to enable Bitcode while
+                        compiling your ipa file for this project (recommended).</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="podOptions">Pod Options</label>
+                    <mat-slide-toggle class="ml-2" id="podOptions" aria-describedby="podOptionsNote"
+                        [checked]="staticConfigFormIos.value.pod_option" formControlName="pod_option">
+                    </mat-slide-toggle>
+                    <small id="podOptionsNote" class="form-text text-muted">Select to enabled CocoaPods for this
+                        project.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="carthageOptions">Carthage Options</label>
+                    <mat-slide-toggle class="ml-2" id="carthageOptions" aria-describedby="carthageOptionsNote"
+                        [checked]="staticConfigFormIos.value.carthage_option" formControlName="carthage_option">
+                    </mat-slide-toggle>
+                    <small id="carthageOptionsNote" class="form-text text-muted">Select to enabled Carthage for this
+                        project.</small>
+                </div>
+
+                <mat-card class="mb-3">
+                    <div class="form-group">
+                        <label for="firebaseOptions">Firebase Adhoc Deployment</label>
+                        <mat-slide-toggle class="ml-2" id="firebaseOptions" aria-describedby="firebaseOptionsNote"
+                            [checked]="staticConfigFormIos.value.firebase_adhoc_option"
+                            formControlName="firebase_adhoc_option">
+                        </mat-slide-toggle>
+                        <small id="firebaseOptionsNote" class="form-text text-muted">Select this if you need to deploy
+                            the
+                            compiled ipa file via Firebase Ah Hoc Distribution.</small>
+                    </div>
+
+                    <div class="form-group" *ngIf="staticConfigFormIos.value.firebase_adhoc_option == true">
+                        <label for="appstoreFirebaseToken">Firebase Token</label>
+                        <input type="text" class="form-control" id="appstoreFirebaseToken"
+                            formControlName="firebase_token" aria-describedby="appstoreFirebaseTokenNote" required>
+                        <small id="appstoreFirebaseTokenNote" class="form-text text-muted">The Firebase token required
+                            to
+                            authenticate login and distribute from that account. <a
+                                href="https://firebase.google.com/docs/cli#cli-ci-systems" target="_blank">Learn
+                                more.</a></small>
+                    </div>
+                </mat-card>
+
+                <mat-card>
+                    <div class="form-group">
+                        <label for="notiChannel">Notification Channel</label>
+                        <select class="custom-select cursor-pointer" id="notiChannel" aria-describedby="notiChannelNote"
+                            formControlName="notification_channel" aria-label="App upload Method" required>
+                            <option value="none" selected>None</option>
+                            <option value="google">Google Hangouts</option>
+                            <option value="teams">Microsoft Teams</option>
+                            <option value="slack">Slack</option>
+                        </select>
+                        <small id="notiChannelNote" class="form-text text-muted">Send a notification when the job
+                            completes
+                            to your workplace communication channel. Currently supports Google Hangouts, Microsoft
+                            Teams,
+                            and Slack.</small>
+                    </div>
+
+                    <div class="form-group" *ngIf="staticConfigFormIos.value.notification_channel != 'none'">
+                        <label for="notiUrl">Notification Hook URL</label>
+                        <input type="text" class="form-control" id="notiUrl" formControlName="notification_hook_url"
+                            aria-describedby="notiUrlNote" required>
+                        <small id="notiUrlNote" class="form-text text-muted">The name of the Apple signing certificate
+                            for
+                            this project. e.g. Apple Distribution: ABC Company Sdn. Bhd.</small>
+                    </div>
+                </mat-card>
+
+                <button class="my-3" type="submit" class="btn btn-primary mt-4">Submit</button>
+            </form>
+        </mat-card-content>
+    </div>
+</div>

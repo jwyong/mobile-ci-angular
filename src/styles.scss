@@ -1,0 +1,48 @@
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+a, a:hover {
+  text-decoration: none !important;
+  color: inherit;
+}
+h1, h2, h3, h4, h5, h6 {
+  margin: 0px !important;
+}
+
+.active-link {
+  color: rgb(86, 86, 240);
+}
+
+.m-0 {
+  margin: 0px !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+button:focus, mat-list-item:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.overlay {
+  z-index: 1001; /* mat-dialog is at 1000 */
+  opacity: 0.3;
+  background: whitesmoke;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
+.loading-bar {
+  z-index: 10;
+  position: fixed;
+}

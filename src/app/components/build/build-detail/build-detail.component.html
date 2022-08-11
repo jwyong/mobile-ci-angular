@@ -1,0 +1,135 @@
+<div class="row p-3" *ngIf="currentProject != null && buildDetails != null">
+    <div class="col pb-3">
+        <h1>Build Details</h1>
+        <p>Details of this build (#{{buildDetails.build_no}}), including build console output which is updated in
+            real-time. The build status will be updated to "Success" once done.</p>
+
+        <div class="d-flex">
+            <button class="btn btn-success ml-auto" type="button" aria-label="Rebuild" (click)="rebuildOnClick()"
+                [disabled]="isStatusPendingBuilding(buildDetails)">
+                Rebuild
+            </button>
+
+            <button class="btn btn-danger ml-2" type="button" aria-label="Cancel Build" (click)="cancelBuildOnClick()" [disabled]="!isStatusPendingBuilding(buildDetails)">
+                Cancel Build
+            </button>
+        </div>
+
+        <mat-card-content class="mt-4">
+            <mat-card class="p-4 mb-4">
+                <table class="table table-fit-th table-borderless">
+                    <tbody>
+                        <tr>
+                            <th class="no-wrap align-middle" scope="row">Build Number</th>
+                            <td class="align-middle">
+                                <div class="d-flex align-items-center">
+                                    #{{buildDetails.build_no}}
+
+                                    <mat-icon class="ml-auto">timer</mat-icon>
+                                    <h3 class="ml-1">{{getBuildDuration(buildDetails)}}</h3>
+
+                                    <mat-icon class="ml-4 text-{{getStatusColour(buildDetails)}}">
+                                        {{getStatusIcon(buildDetails)}}</mat-icon>
+                                    <h4 class="ml-1 text-{{getStatusColour(buildDetails)}}">
+                                        {{getStatusText(buildDetails)}}</h4>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th class="no-wrap" scope="row">Project Name</th>
+                            <td>{{currentProject.name}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="no-wrap" scope="row">Scheme</th>
+                            <td>{{buildDetails.scheme}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="no-wrap" scope="row">Environment</th>
+                            <td>{{buildDetails.environment}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+
+                <table class="table table-fit table-borderless">
+                    <tbody>
+                        <tr>
+                            <th class="no-wrap" scope="row">Testflight Enabled</th>
+                            <td>
+                                <mat-slide-toggle class="ml-2" [checked]="buildDetails.testflight_option == '1'"
+                                    disabled>
+                                </mat-slide-toggle>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th class="no-wrap" scope="row">Unit Test Enabled</th>
+                            <td>
+                                <mat-slide-toggle class="ml-2" [checked]="buildDetails.test_option == '1'" disabled>
+                                </mat-slide-toggle>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th class="no-wrap" scope="row">Enterprise Account</th>
+                            <td>
+                                <mat-slide-toggle class="ml-2" [checked]="buildDetails.enterprise_option == '1'"
+                                    disabled>
+                                </mat-slide-toggle>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+
+                <table class="table table-fit-th table-borderless">
+                    <tbody>
+                        <tr>
+                            <th class="no-wrap" scope="row">Git Branch</th>
+                            <td>{{buildDetails.branch}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="no-wrap" scope="row">Firebase Adhoc Deployment</th>
+                            <td>
+                                <mat-slide-toggle class="ml-2" [checked]="buildDetails.adhoc_option == '1'" disabled>
+                                </mat-slide-toggle>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="buildDetails.adhoc_option == '1'">
+                            <th class="no-wrap" scope="row">Firebase Distribution Group</th>
+                            <td>{{buildDetails.firebase_distribution_group}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="no-wrap" scope="row">Release Notes</th>
+                            <td>
+                                <textarea type="text" class="form-control" aria-describedby="releaseNotesNote"
+                                    readonly>{{buildDetails.release_note}}</textarea>
+                                <small id="releaseNotesNote" class="form-text text-muted">If "Firebase Adhoc Deployment"
+                                    option was enabled for this build, the .ipa file will be distributed to the
+                                    specified Firebase distribution
+                                    group via Firebase App Distribution, with release notes as shown above.</small>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+
+            <h1>Build Console Output</h1>
+            <mat-card class="p-4 my-4 bg-dark text-light">
+                <span class="px-4" *ngIf="consoleOutput != null" style="white-space: pre-line">{{consoleOutput}}</span>
+
+                <label class="my-2 ml-auto d-flex align-items-center text-light" *ngIf="shouldShowConsoleLoading()">
+                    <mat-spinner class="mr-1" diameter="18"></mat-spinner>
+                    Loading Console...
+                </label>
+            </mat-card>
+
+        </mat-card-content>
+    </div>
+</div>

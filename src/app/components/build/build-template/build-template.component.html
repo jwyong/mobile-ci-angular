@@ -1,0 +1,203 @@
+<div class="row p-3" *ngIf="currentProjectId != null">
+    <div class="col pb-3">
+        <div *ngIf="dialogData == null">
+            <h1>Build Template</h1>
+            <p>Configure your build template here that will be used as the default template for any new builds, so that
+                you
+                won't have to re-configure everything everytime you create a new build. These options are configurable
+                when
+                creating a build.</p>
+        </div>
+
+        <div *ngIf="dialogData != null">
+            <h1>Create New Build</h1>
+            <p>Submit a new build with configurations based on your build template. You can change details here for this
+                build only without affecting the build template.</p>
+        </div>
+
+        <mat-card-content class="px-2 py-4">
+            <form [formGroup]="buildTemplateFormIos" (ngSubmit)="formOnSubmit(buildTemplateFormIos.value)"
+                ngNativeValidate>
+
+                <!-- build number - only for actual builds (not build template) -->
+                <div *ngIf="dialogData != null" class="form-group">
+                    <label for="buildNumber">New Build Number</label>
+
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="buildNumber" aria-describedby="buildNumberNote"
+                            formControlName="build_number" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-success" type="button" id="button-addon2"
+                                (click)="updateBuildNumber()">Update</button>
+                        </div>
+                    </div>
+                    <small id="buildNumberNote" class="form-text text-muted">This will be the build number for this
+                        new build. This is required for the first time of building the project only, but you can
+                        also choose to update it manually for this new build.</small>
+                </div>
+
+                <div class="form-group" *ngIf="iosBuildTemplateOptions != null">
+                    <label for="schemeDropdown">Scheme</label>
+                    <select class="custom-select cursor-pointer" id="schemeDropdown" (change)="onSchemeChanged()"
+                        aria-describedby="schemeDropdownNote" formControlName="scheme" aria-label="Schemes dropdown"
+                        required>
+                        <option *ngFor="let option of iosBuildTemplateOptions.build_options" value="{{option.scheme}}">
+                            {{option.scheme}}
+                        </option>
+                    </select>
+                    <small id="schemeDropdownNote" class="form-text text-muted">The default scheme in your project that
+                        you want to build.
+                    </small>
+                </div>
+
+                <div class="form-group" *ngIf="iosBuildTemplateOptions != null && environments.length > 0">
+                    <label for="envDropdown">Environment</label>
+                    <select class="custom-select cursor-pointer" id="envDropdown" aria-describedby="envDropdownNote"
+                        formControlName="environment" aria-label="Environments dropdown" required>
+                        <option *ngFor="let environment of environments" value="{{environment}}">
+                            {{environment}}
+                        </option>
+                    </select>
+                    <small id="envDropdownNote" class="form-text text-muted">The default environment for the selected
+                        scheme which you
+                        want to build. Switching schemes will result in different environments to choose from, according
+                        to your Project Static Configs.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="gitBranch">Git Branch</label>
+                    <input type="text" class="form-control" id="gitBranch" formControlName="branch"
+                        aria-describedby="gitBranchNote" placeholder="e.g. master" required>
+                    <small id="gitBranchNote" class="form-text text-muted">The name of the branch in your Git repository
+                        that you want to build.</small>
+                </div>
+
+                <!-- carthage options -->
+                <mat-card class="mb-3"
+                    *ngIf="iosBuildTemplateOptions? iosBuildTemplateOptions.carthage_option == '1' : false">
+                    <div class="form-group">
+                        <div class="d-flex align-items-center">
+                            <label for="cartFile">Carthage File</label>
+
+                            <!-- cartfile status -->
+                            <!-- building -->
+                            <label class="ml-auto d-flex align-items-center text-secondary"
+                                *ngIf="cartFileStatus == 'building'">
+                                <mat-spinner class="mr-1" diameter="18"></mat-spinner>
+                                Compiling...
+                            </label>
+
+                            <!-- success -->
+                            <label class="ml-auto d-flex align-items-center text-success"
+                                *ngIf="cartFileStatus == 'success'">
+                                <mat-icon class="mr-1">check_circle_outline</mat-icon>
+                                Done!
+                            </label>
+
+                            <!-- failure -->
+                            <label class="ml-auto d-flex align-items-center text-danger"
+                                *ngIf="cartFileStatus == 'failure'">
+                                <mat-icon class="mr-1">cancel</mat-icon>
+                                Failed!
+                            </label>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input #inputFile type="file" class="custom-file-input cursor-pointer" id="cartFile"
+                                    aria-describedby="cartFileNote" (change)="cartfileOnChange($event)">
+                                <label class="custom-file-label"
+                                    for="cartFile">{{cartFileName? cartFileName: 'Choose file'}}</label>
+                            </div>
+                        </div>
+                        <small id="cartFileNote" class="form-text text-muted">Specify the cartfile to be used for
+                            compiling this build. Compilation will begin as soon as cartfile is chosen, and you can
+                            navigate away from this website as it compiles on our server.</small>
+                    </div>
+
+                </mat-card>
+
+                <!-- firebase adhoc options -->
+                <mat-card class="mb-3"
+                    *ngIf="iosBuildTemplateOptions? iosBuildTemplateOptions.firebase_adhoc_option == '1' : false">
+                    <div class="form-group">
+                        <label for="firebaseOptions">Firebase Adhoc Deployment</label>
+                        <mat-slide-toggle class="ml-2" id="firebaseOptions" aria-describedby="firebaseOptionsNote"
+                            [checked]="buildTemplateFormIos.value.adhoc_option" formControlName="adhoc_option">
+                        </mat-slide-toggle>
+                        <small id="firebaseOptionsNote" class="form-text text-muted">Enabled if you have this option
+                            enabled in Project Static Configs. The static configs are not affected even if your disable
+                            this here.</small>
+                    </div>
+
+                    <div class="form-group" *ngIf="buildTemplateFormIos.value.adhoc_option == true">
+                        <label for="firebaseDistGrp">Firebase Distribution Group</label>
+                        <input type="text" class="form-control" id="firebaseDistGrp" placeholder="e.g. PRODUCT_TEAM"
+                            formControlName="firebase_distribution_group" aria-describedby="firebaseDistGrpNote"
+                            required>
+                        <small id="firebaseDistGrpNote" class="form-text text-muted">Specify the default firebase
+                            group to deploy your build to.</small>
+                    </div>
+                </mat-card>
+
+                <!-- build options -->
+                <mat-card class="mb-3">
+                    <div class="form-group">
+                        <label for="testFlightOptions">TestFlight Enabled</label>
+                        <mat-slide-toggle class="ml-2" id="testFlightOptions" aria-describedby="testFlightOptionsNote"
+                            [checked]="buildTemplateFormIos.value.testflight_option"
+                            formControlName="testflight_option">
+                        </mat-slide-toggle>
+                        <small id="testFlightOptionsNote" class="form-text text-muted">Check this if you want to deploy
+                            your Beta app via Apple's TestFlight.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="testOptions">Test Enabled</label>
+                        <mat-slide-toggle class="ml-2" id="testOptions" aria-describedby="testOptionsNote"
+                            [checked]="buildTemplateFormIos.value.test_option" formControlName="test_option">
+                        </mat-slide-toggle>
+                        <small id="testOptionsNote" class="form-text text-muted">Enable this if you have implemented
+                            unit tests in your codes and would like to run them when building.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pushToBranchOptions">Push-To-Branch Enabled</label>
+                        <mat-slide-toggle class="ml-2" id="pushToBranchOptions"
+                            aria-describedby="pushToBranchOptionsNote"
+                            [checked]="buildTemplateFormIos.value.push_to_branch_option"
+                            formControlName="push_to_branch_option">
+                        </mat-slide-toggle>
+                        <small id="pushToBranchOptionsNote" class="form-text text-muted">Enable this if you want this
+                            build to be committed and pushed to the Git branch you selected after build completes.
+                            Typical updates include
+                            auto-increment of version codes.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="enterpriseOptions">Enterprise Account</label>
+                        <mat-slide-toggle class="ml-2" id="enterpriseOptions" aria-describedby="enterpriseOptionsNote"
+                            [checked]="buildTemplateFormIos.value.enterprise_option"
+                            formControlName="enterprise_option">
+                        </mat-slide-toggle>
+                        <small id="enterpriseOptionsNote" class="form-text text-muted">Enable this if your Apple
+                            Developer account is an Enterprise Account.</small>
+                    </div>
+                </mat-card>
+
+                <div class="form-group">
+                    <label for="releaseNotes">Release Notes (Optional)</label>
+                    <textarea type="text" class="form-control" id="releaseNotes" formControlName="release_note"
+                        aria-describedby="releaseNotesNote" rows="4"></textarea>
+                    <small id="releaseNotesNote" class="form-text text-muted">Optional: Type your default release notes
+                        to be used for future builds.</small>
+                </div>
+
+                <div class="d-flex mb-4">
+                    <button type="submit" class="btn btn-primary">{{getSubmitBtnText()}}</button>
+                </div>
+            </form>
+        </mat-card-content>
+    </div>
+</div>

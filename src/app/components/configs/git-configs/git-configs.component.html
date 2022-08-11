@@ -1,0 +1,58 @@
+<div class="row p-3" *ngIf="currentProjectId != null">
+    <div class="col pb-3">
+        <h1>Git Configs</h1>
+        <p>This is where the git configurations for your project go. Login to your gitlab repository to get the required
+            information.</p>
+        <mat-card-content class="px-2 py-4">
+            <form [formGroup]="gitConfigForm" (ngSubmit)="submitGitConfigForm(gitConfigForm.value)" ngNativeValidate>
+                <div class="form-group">
+                    <label for="gitLoginTypeSelect">Git Login Type</label>
+                    <select class="custom-select cursor-pointer" id="gitLoginTypeSelect" aria-describedby="gitRepoURL"
+                        formControlName="git_login_type" aria-label="Example select with button addon" required>
+                        <option value="ssh">SSH (recommended)</option>
+                        <option value="credential">Credential (HTTPS)</option>
+                    </select>
+                    <small id="gitLoginType" class="form-text text-muted">The preferred login type to your git
+                        repository. SSH is recommended for security purposes.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="gitUrlInput">Git Repository Url</label>
+                    <input type="text" class="form-control" id="gitUrlInput" formControlName="git_url"
+                        aria-describedby="gitRepoURL" placeholder="e.g. {{getGitUrlPlaceHolder()}}" required>
+                    <small id="gitRepoURL" class="form-text text-muted">This is the link to your git repository,
+                        depending on which login type is chosen.</small>
+                </div>
+
+                <!-- generate public key btn (ssh) -->
+                <div class="form-group" *ngIf="gitConfigForm.value.git_login_type == 'ssh'">
+                    <label for="gitSSHKeyInput">Git SSH Key</label>
+                    <div class="input-group">
+                        <textarea type="text" class="form-control" id="gitSSHKeyInput" aria-describedby="gitSSHKey"
+                            rows="5" (click)="textAreaOnClick()" readonly>{{gitSSHKey}}</textarea>
+                        <div class="input-group-append">
+                            <button (click)="generateBtnOnClick()" type="button" class="btn btn-info"
+                                [disabled]="generateBtnDisabled">Generate</button>
+                        </div>
+                    </div>
+
+                    <small id="gitSSHKey" class="form-text text-muted">Generate a new SSH key and copy/paste it to your
+                        Git Repository. You only need to generate this key once.</small>
+                </div>
+
+                <!-- password input (credential) -->
+                <div class="form-group" *ngIf="gitConfigForm.value.git_login_type == 'credential'">
+                    <label for="gitUrlInput">Git Password</label>
+                    <input type="password" class="form-control" id="gitUrlInput" formControlName="git_url"
+                        aria-describedby="gitRepoURL" formControlName="git_password"
+                        [required]="gitConfigForm.value.git_login_type == 'credential'">
+                    <small id="gitRepoURL" class="form-text text-muted">The password you use for logging into your Git
+                        repository, or App Password which gives access to your repository.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary mb-4">Submit</button>
+            </form>
+        </mat-card-content>
+    </div>
+</div>

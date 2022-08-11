@@ -1,0 +1,28 @@
+/* 
+    fit table columns to content width (instead of fill parent width)
+*/
+table.table-fit {
+    width: auto !important;
+    table-layout: auto !important;
+}
+table.table-fit thead th, table.table-fit tfoot th {
+    width: auto !important;
+}
+table.table-fit tbody td, table.table-fit tfoot td {
+    width: auto !important;
+}
+
+table.table-fit-th {
+    width: auto !important;
+    table-layout: auto !important;
+}
+table.table-fit-th thead th, table.table-fit-th tfoot th {
+    width: auto !important;
+}
+table.table-fit-th tbody td, table.table-fit-th tfoot td {
+    width: 100% !important;
+}
+
+.no-wrap {
+    white-space: nowrap !important;
+}

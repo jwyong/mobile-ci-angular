@@ -1,0 +1,16 @@
+<div class="container">
+    <h1 class="my-3">Projects List</h1>
+
+    <div class="row">
+        <div *ngFor="let project of projectList" class="col-12 col-sm-6 cursor-pointer">
+            <mat-card class="my-2 mx-1" (click)="projectOnClick(project)">
+                <mat-card-content>
+                    <div class="d-flex align-items-center">
+                        <img class="" src="assets/img/apple-logo.png" style="width:30px; height: 30px;">
+                        <h3 class="mx-2 my-0">{{project.name}}</h3>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

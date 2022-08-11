@@ -1,0 +1,85 @@
+<!-- toolbar -->
+<mat-toolbar color="primary">
+    <button mat-icon-button class="btn text-white" mat-button (click)="drawer.toggle()" aria-label="menu">
+        <mat-icon>menu</mat-icon>
+    </button>
+
+    <span>Mobile CI</span>
+
+    <!-- welcome, user -->
+    <span class="ml-auto text-small">Welcome</span>
+
+    <!-- profile icon + dropdown -->
+    <button mat-icon-button [matMenuTriggerFor]="menuProfile" class="btn text-white" aria-label="profile">
+        <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #menuProfile="matMenu">
+        <!-- <a class="dropdown-item cursor-pointer" routerLink="">Profile</a> -->
+        <a class="dropdown-item cursor-pointer" (click)="logout()">Logout</a>
+    </mat-menu>
+</mat-toolbar>
+
+<!-- main content + side nav -->
+<mat-drawer-container class="nav-container position-fixed" autosize>
+    <!-- side nav drawer -->
+    <mat-drawer #drawer class="nav-sidenav" mode="side" opened="true">
+        <mat-list>
+            <mat-list-item class="mb-2 cursor-pointer border rounded-pill" [matMenuTriggerFor]="menuProjList">
+                <div class="w-100 d-flex align-items-center">
+                    <strong> {{currentProject? currentProject.name : 'Create New Project'}} </strong>
+                    <mat-icon class="ml-auto">arrow_drop_down</mat-icon>
+                </div>
+            </mat-list-item>
+
+            <!-- projects list dropdown -->
+            <mat-menu class="px-2" #menuProjList="matMenu">
+                <a *ngFor="let project of projectList" class="dropdown-item cursor-pointer d-flex align-items-center"
+                    (click)="projectOnClick(project)">
+                    <!-- <img class="" src="assets/img/{{project.platform}}-logo.png" style="width:20px; height: 20px;"> -->
+                    <h3 class="mx-2 my-0">{{project.name}}</h3>
+                </a>
+
+                <mat-divider *ngIf="projectList? projectList.length > 0 : false"></mat-divider>
+                <a class="dropdown-item cursor-pointer d-flex align-items-center"
+                    (click)="createProjectOnClick()">
+                    <strong>+ Create New Project</strong>
+                </a>
+            </mat-menu>
+
+            <div *ngIf="currentProject != null">
+                <mat-list-item class="cursor-pointer" [routerLink]="['/git-configs']">
+                    <a routerLinkActive="active-link">Git Configs</a>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item class="cursor-pointer" [routerLink]="['/static-configs']">
+                    <a routerLinkActive="active-link">Project Static Configs</a>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item class="cursor-pointer" [routerLink]="['/environments']">
+                    <a routerLinkActive="active-link">Project Environments</a>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item class="cursor-pointer" [routerLink]="['/build-template']">
+                    <a routerLinkActive="active-link">Build Template</a>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item class="cursor-pointer" [routerLink]="['/build-history']">
+                    <a routerLinkActive="active-link">Build History</a>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+            </div>
+        </mat-list>
+    </mat-drawer>
+
+    <!-- main content -->
+    <router-outlet></router-outlet>
+
+    <!-- fab - create new build -->
+    <!-- <button [matMenuTriggerFor]="menuCreateBuild" class="fab-btm-right" mat-fab color="primary" aria-label="Create project">
+        <mat-icon>add</mat-icon>
+    </button>
+    <mat-menu #menuCreateBuild="matMenu">
+        <a class="dropdown-item cursor-pointer" (click)="createNewBuildOnClick()">Create New Build</a>
+    </mat-menu> -->
+
+</mat-drawer-container>

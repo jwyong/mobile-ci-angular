@@ -1,0 +1,7 @@
+<mat-card-content *ngIf="dialogData == null">
+    <app-build-template></app-build-template>
+</mat-card-content>
+
+<mat-dialog-content *ngIf="dialogData != null">
+    <app-build-template [dialogData]="dialogData"></app-build-template>
+</mat-dialog-content>

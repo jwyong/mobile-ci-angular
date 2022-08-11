@@ -1,0 +1,33 @@
+<div class="row p-3" *ngIf="currentProjectId != null">
+    <div class="col pb-3">
+        <h1>Project Environments</h1>
+        <p>Configure your project schemes and environments here. You can have multiple schemes within a single project,
+            while each scheme can have multiple environments to deploy in.
+        </p>
+
+        <mat-card-content class="mt-4" *ngIf="envConfigsIos != null">
+            <!-- schema items -->
+            <mat-card class="p-4 mb-4" *ngFor="let scheme of envConfigsIos.environment_settings">
+                <div class="d-flex align-items-center">
+                    <h2 class="">{{scheme.scheme}}</h2>
+                    <button type="button" class="btn btn-light ml-auto border"
+                        (click)="openEnvDetailsDialog(scheme)">Edit</button>
+                </div>
+                <div class="form-group" *ngFor="let env of scheme.environment">
+                    <strong><label for="basic-url">{{env.name}}</label></strong>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Firebase App ID</span>
+                        </div>
+                        <textarea class="form-control" aria-label="With textarea"
+                            readonly>{{env.firebase_id}}</textarea>
+                    </div>
+                </div>
+            </mat-card>
+
+            <!-- add scheme -->
+            <button type="button" class="btn btn-primary mb-4" (click)="createNewScheme()">Create New Scheme</button>
+        </mat-card-content>
+
+    </div>
+</div>

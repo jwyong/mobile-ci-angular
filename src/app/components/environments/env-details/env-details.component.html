@@ -1,0 +1,45 @@
+<mat-dialog-content>
+    <form [formGroup]="envConfigsFormIos" (ngSubmit)="submitEnvConfigs(envConfigsFormIos.value)" ngNativeValidate>
+        <div class="form-group">
+            <label for="gitUrlInput">Scheme Name</label>
+            <input type="text" class="form-control" id="schemeName" aria-describedby="gitRepoURL"
+                formControlName="scheme_name" placeholder="e.g. abc_app_merchant" required>
+        </div>
+
+        <!-- dynamic form based on scheme environment -->
+        <div formArrayName="settings">
+            <mat-card *ngFor="let envSetting of settings.controls; let i = index" class="mb-3">
+                <!-- remove btn on top right -->
+                <mat-icon class="mb-3 cursor-pointer" (click)="removeEnvBtn(envSetting)" style="float: right;">close</mat-icon>
+
+                <div [formArrayName]="i">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Environment Name</span>
+                            </div>
+                            <input type="text" class="form-control" id="envName-{{scheme_id}}" aria-describedby="teamCertNote"
+                                formControlName="environment" placeholder="e.g. staging" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Firebase App ID</span>
+                        </div>
+                        <textarea class="form-control" aria-label="With textarea" id="firebaseId-{{scheme_id}}"
+                            formControlName="firebase_id" required></textarea>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+
+        <!-- add new env btn -->
+        <div class="d-flex">
+            <button class="my-3" type="button" class="btn btn-light mx-auto border" (click)="addNewEnvBtn()">
+                + Add New Environment
+            </button>
+        </div>
+
+        <button class="my-3" type="submit" class="btn btn-primary mt-4">Submit</button>
+    </form>
+</mat-dialog-content>

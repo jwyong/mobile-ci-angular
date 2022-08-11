@@ -1,0 +1,51 @@
+<div class="row p-3" *ngIf="currentProject != null">
+    <div class="col pb-3">
+        <div class="d-flex">
+            <h1>Build History</h1>
+            <button class="btn btn-primary ml-auto" type="button" (click)="createNewBuildOnClick()"
+                aria-label="Create project">
+                Create New Build
+            </button>
+        </div>
+        <p>Check your build history so far, click for more info</p>
+
+        <div *ngFor="let buildHistory of buildHistoryList"
+            class="callout callout-{{getStatusColour(buildHistory)}} cursor-pointer">
+            <a class="flex-column" [routerLink]="['/build-detail', buildHistory.build_id]">
+                <div class="d-flex align-items-center">
+                    <h5>#{{buildHistory.build_no}}</h5>
+
+                    <mat-icon class="ml-auto">timer</mat-icon>
+                    <h3 class="ml-1">{{getBuildDuration(buildHistory)}}</h3>
+
+                    <button [matMenuTriggerFor]="menuBuildMoreBtn"
+                        (click)="$event.stopPropagation(); $event.preventDefault();" class="ml-2" mat-icon-button
+                        aria-label="Example icon button with a vertical three dot icon">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #menuBuildMoreBtn="matMenu">
+                        <a *ngIf="!isStatusPendingBuilding(buildHistory)" class="dropdown-item cursor-pointer"
+                            (click)="rebuildOnClick(buildHistory.build_id)">Rebuild</a>
+                        <a *ngIf="isStatusPendingBuilding(buildHistory)" class="dropdown-item cursor-pointer"
+                            (click)="cancelBuildOnClick(buildHistory.build_id, buildHistory.build_no)">Cancel Build</a>
+                    </mat-menu>
+                </div>
+
+                <h3 class="mt-2">{{buildHistory.scheme}} ({{buildHistory.environment}})</h3>
+
+                <h2>{{currentProject.name}}</h2>
+
+                <div class="d-flex align-items-center">
+                    <h3>{{buildHistory.branch}}</h3>
+
+                    <mat-icon class="callout-status-icon ml-auto">{{getStatusIcon(buildHistory)}}</mat-icon>
+                    <h4 class="ml-1">{{getStatusText(buildHistory)}}</h4>
+                </div>
+            </a>
+        </div>
+
+        <mat-paginator class="mb-4" [length]="totalCount? totalCount: 0" [pageSize]="15" [pageSizeOptions]="[15]"
+            (page)="onPageEvent($event)">
+        </mat-paginator>
+    </div>
+</div>

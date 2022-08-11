@@ -1,0 +1,9 @@
+<!-- loading bar -->
+<mat-progress-bar class="loading-bar" *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+<!-- overlay -->
+<div class="overlay" *ngIf="isLoading"></div>
+
+<app-login *ngIf="accessToken == null"></app-login>
+
+<app-home *ngIf="accessToken != null"></app-home>
